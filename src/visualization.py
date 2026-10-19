@@ -15,6 +15,24 @@ def plot_target(df, target, outdir):
     for bar,val in zip(ax.patches,counts.values): ax.annotate(f'{val:,} ({val/total:.1%})',(bar.get_x()+bar.get_width()/2,bar.get_height()),ha='center',va='bottom',fontsize=9)
     fig.tight_layout(); savefig(fig,outdir,'01_target_balance.png'); return fig
 
+def plot_column_bar(df, column, outdir, top_n=20):
+    """Plot value counts for a selected column and save a horizontal bar chart."""
+    if column not in df.columns:
+        raise ValueError(f"Column {column!r} not found in dataset.")
+
+    counts = df[column].fillna('Missing').astype(str).value_counts().head(top_n).sort_values()
+    if counts.empty:
+        return None
+
+    fig, ax = plt.subplots(figsize=(9, max(4.5, len(counts) * 0.32)))
+    bars = ax.barh(counts.index, counts.values)
+    ax.set(title=f'Value counts: {column}', xlabel='Rows', ylabel=column)
+    ax.bar_label(bars, labels=[f'{int(value):,}' for value in counts.values], padding=3, fontsize=9)
+    fig.tight_layout()
+    safe_column = ''.join(ch.lower() if ch.isalnum() else '_' for ch in str(column)).strip('_')
+    savefig(fig, outdir, f'07_column_bar_{safe_column or "column"}.png')
+    return fig
+
 def plot_distributions(df,target,outdir,limit=24):
     cols=[c for c in df.select_dtypes(include=np.number) if c!=target][:limit]; rows=max(1,math.ceil(len(cols)/3)); fig,axes=plt.subplots(rows,3,figsize=(15,rows*3.3),squeeze=False)
     for ax,col in zip(axes.flat,cols): ax.hist(df[col].dropna(), bins='auto'); ax.set_title(col); ax.set_xlabel(col); ax.set_ylabel('Count')
