@@ -22,12 +22,6 @@ def candidate_clean(frame):
     return out
 
 def split_aware_standardise(X_train, X_test):
-    scaler = StandardScaler()
-    train = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns, index=X_train.index)
-    test = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns, index=X_test.index)
-    return train, test, scaler
-
-def split_aware_standardise(X_train, X_test):
     """Fit StandardScaler on training rows only, then transform test rows."""
     scaler = StandardScaler()
     train = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns, index=X_train.index)
