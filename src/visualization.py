@@ -28,7 +28,7 @@ def plot_boxplots(df,target,outdir,limit=18):
     for ax,col in zip(axes.flat,cols):
         groups=[df.loc[df[target]==label,col].dropna().values for label in df[target].dropna().unique()]
         labels=[str(label) for label in df[target].dropna().unique()]
-        ax.boxplot(groups, labels=labels); ax.set_title(col); ax.tick_params(axis='x', rotation=25)
+        ax.boxplot(groups); ax.set_xticks(range(1,len(labels)+1)); ax.set_xticklabels(labels, rotation=25); ax.set_title(col)
     for ax in list(axes.flat)[len(cols):]: ax.remove()
     fig.suptitle('Feature ranges by target class',y=1.002); fig.tight_layout(); savefig(fig,outdir,'03_boxplots_by_target.png'); return fig
 
@@ -37,7 +37,7 @@ def plot_correlations(df,target,outdir,max_cols=24):
     if target not in num: return None
     if len(num.columns)>max_cols:
         ranked=num.corr()[target].drop(target).abs().nlargest(max_cols-1); num=num[list(ranked.index)+[target]]
-    corr=num.corr(); fig,ax=plt.subplots(figsize=(max(9,len(corr.columns)*.55),max(7,len(corr.columns)*.48))); image=ax.imshow(corr.values, vmin=-1, vmax=1, aspect='auto'); ax.set_xticks(range(len(corr.columns)), labels=corr.columns, rotation=90); ax.set_yticks(range(len(corr.index)), labels=corr.index); fig.colorbar(image, ax=ax, label='Pearson r'); ax.set_title('Pearson correlation (numeric columns)'); fig.tight_layout(); savefig(fig,outdir,'04_correlation_heatmap.png'); return fig
+    corr=num.corr(); fig,ax=plt.subplots(figsize=(max(9,len(corr.columns)*.55),max(7,len(corr.columns)*.48))); image=ax.imshow(corr.values, vmin=-1, vmax=1, aspect='auto');     ax.set_xticks(range(len(corr.columns))); ax.set_xticklabels(corr.columns, rotation=90); ax.set_yticks(range(len(corr.index))); ax.set_yticklabels(corr.index); fig.colorbar(image, ax=ax, label='Pearson r'); ax.set_title('Pearson correlation (numeric columns)'); fig.tight_layout(); savefig(fig,outdir,'04_correlation_heatmap.png'); return fig
 
 def plot_missingness(df,outdir):
     pct=df.isna().mean().mul(100).sort_values(ascending=False); fig,ax=plt.subplots(figsize=(max(8,len(pct)*.38),4.5)); ax.bar(pct.index, pct.values); ax.set(title='Missing values by feature',xlabel='Feature',ylabel='Missing (%)'); ax.tick_params(axis='x',rotation=75); fig.tight_layout(); savefig(fig,outdir,'05_missingness.png'); return fig
